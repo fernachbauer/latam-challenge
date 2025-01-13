@@ -1,12 +1,13 @@
 # 📂 Crear un Bucket de Cloud Storage con variable
 resource "google_storage_bucket" "latam_bucket" {
-  name          = var.bucket_name  # ✅ Uso de la variable
+  name          = var.bucket_name
   location      = var.region
-  force_destroy = true  # ✅ Permite borrar el bucket aunque tenga archivos
+  force_destroy = true
+  storage_class = "STANDARD"
 
-  uniform_bucket_level_access = true  # 🚀 Seguridad recomendada
+  uniform_bucket_level_access = true
   versioning {
-    enabled = true  # 🔄 Control de versiones activado
+    enabled = true
   }
 
   lifecycle_rule {
@@ -14,19 +15,22 @@ resource "google_storage_bucket" "latam_bucket" {
       type = "Delete"
     }
     condition {
-      age = 30  # 🕒 Borra objetos después de 30 días
+      age = 30
     }
+  }
+
+  lifecycle {
+    prevent_destroy = false
+    ignore_changes  = [name]
   }
 }
 
-
 # 📥 Subir el esquema de BigQuery al Bucket
 resource "google_storage_bucket_object" "schema_datos" {
-  name   = "schemas/schema_datos.json"  # 📂 Ruta dentro del bucket
-  bucket = var.bucket_name              # ✅ Uso de la variable
-  source = "${path.module}/schemas/schema_datos.json"  # 📄 Archivo local
+  name   = "schemas/schema_datos.json"
+  bucket = google_storage_bucket.latam_bucket.name
+  source = "${path.module}/schemas/schema_datos.json"
 }
-
 
 # ✅ Creación del Dataset en BigQuery
 resource "google_bigquery_dataset" "latam_dataset" {
@@ -42,8 +46,12 @@ resource "google_bigquery_table" "datos" {
   table_id   = "datos"
   project    = var.project_id
 
-  # ✅ Cargar el esquema directamente desde el bucket
-  schema = file("${path.module}/schemas/schema_datos.json")
+  # ✅ Configuración de datos externos desde Cloud Storage
+  external_data_configuration {
+    source_uris  = ["gs://${google_storage_bucket.latam_bucket.name}/schemas/schema_datos.json"]
+    source_format = "NEWLINE_DELIMITED_JSON"
+    autodetect    = true
+  }
 
   time_partitioning {
     type = "DAY"
@@ -51,15 +59,26 @@ resource "google_bigquery_table" "datos" {
 }
 
 
+
+
 # 📩 Configuración de Pub/Sub
 resource "google_pubsub_topic" "datos_topic" {
   name    = "datos-topic"
   project = var.project_id
+  lifecycle {
+    prevent_destroy = false
+    ignore_changes  = [name]
+  }
 }
-
 resource "google_pubsub_subscription" "datos_subscription" {
   name  = "datos-subscription"
   topic = google_pubsub_topic.datos_topic.name
+  message_retention_duration = "604800s" # 7 días
+
+  lifecycle {
+    prevent_destroy = false
+    ignore_changes  = [name]
+  }
 }
 
 # 🚀 Despliegue del servicio en Cloud Run
