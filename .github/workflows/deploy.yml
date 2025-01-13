@@ -19,12 +19,15 @@ jobs:
           terraform_version: 1.4.0
 
       - name: 🌎 Inicializar Terraform
-        run: terraform init
+        run: |
+          cd terraform
+          terraform init
 
       - name: 🚀 Aplicar Terraform
         env:
           GCP_CREDENTIALS: ${{ secrets.GCP_KEY }}
         run: |
+          cd terraform
           terraform apply -auto-approve \
             -var="gcp_credentials=${GCP_CREDENTIALS}" \
             -var="project_id=latam-devops-project" \
