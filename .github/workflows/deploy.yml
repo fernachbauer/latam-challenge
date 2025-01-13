@@ -1,36 +1,32 @@
-name: Deploy API to Google Cloud Run
+name: 🚀 Deploy to Google Cloud Run with Terraform
 
 on:
   push:
     branches:
-      - main  # Se activa cuando haces push a la rama main
+      - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Clonar el repositorio
-        uses: actions/checkout@v2
+      - name: 🛠️ Checkout del repositorio
+        uses: actions/checkout@v3
 
-      - name: 🔑 Autenticarse en Google Cloud
-        uses: google-github-actions/auth@v1
+      - name: 🔄 Instalar Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          credentials_json: ${{ secrets.GCP_KEY }}
+          terraform_version: 1.4.0
 
-      - name: 🔧 Configurar Docker para Google Cloud
-        run: gcloud auth configure-docker
+      - name: 🌎 Inicializar Terraform
+        run: terraform init
 
-      - name: 🐳 Construir y Publicar imagen Docker
+      - name: 🚀 Aplicar Terraform
+        env:
+          GCP_CREDENTIALS: ${{ secrets.GCP_KEY }}
         run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api .
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api
-
-      - name: 🚀 Desplegar en Cloud Run
-        run: |
-          gcloud run deploy latam-api \
-            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api \
-            --platform managed \
-            --region us-central1 \
-            --allow-unauthenticated
-
+          terraform apply -auto-approve \
+            -var="gcp_credentials=${GCP_CREDENTIALS}" \
+            -var="project_id=latam-devops-project" \
+            -var="region=us-central1" \
+            -var="docker_image=gcr.io/latam-devops-project/latam-api:latest"
