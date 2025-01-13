@@ -6,28 +6,16 @@ resource "google_bigquery_dataset" "latam_dataset" {
   description = "Dataset para almacenar datos de la API LATAM"
 }
 
-# ✅ Creación de la Tabla en BigQuery
+# ✅ Creación de la tabla en BigQuery
 resource "google_bigquery_table" "datos" {
   dataset_id = google_bigquery_dataset.latam_dataset.dataset_id
   table_id   = "datos"
   project    = var.project_id
 
-  schema {
-    fields = [
-      {
-        name = "id"
-        type = "STRING"
-        mode = "REQUIRED"
-      },
-      {
-        name = "contenido"
-        type = "STRING"
-        mode = "NULLABLE"
-      }
-    ]
-  }
-}
+  schema = file("${path.module}/schemas/schema_datos.json")
 
+  deletion_protection = false
+}
 
 # 📩 Configuración de Pub/Sub
 resource "google_pubsub_topic" "datos_topic" {
