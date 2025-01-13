@@ -52,10 +52,6 @@ resource "google_bigquery_table" "datos" {
     source_format = "NEWLINE_DELIMITED_JSON"
     autodetect    = true
   }
-
-  time_partitioning {
-    type = "DAY"
-  }
 }
 
 
