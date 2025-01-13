@@ -30,7 +30,6 @@ jobs:
 
       - name: 🚀 Aplicar Terraform
         env:
-          GCP_KEY: ${{ secrets.GCP_KEY }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           DOCKER_IMAGE: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api:latest"
@@ -41,3 +40,4 @@ jobs:
             -var="region=us-central1" \
             -var="docker_image=${DOCKER_IMAGE}" \
             -var="service_account=${GCP_SERVICE_ACCOUNT}"
+
