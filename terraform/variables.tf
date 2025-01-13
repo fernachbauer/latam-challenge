@@ -13,3 +13,7 @@ variable "docker_image" {
   type        = string
 }
 
+variable "service_account" {
+  description = "Cuenta de servicio con permisos necesarios"
+  type        = string
+}
