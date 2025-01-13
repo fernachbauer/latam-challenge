@@ -26,7 +26,7 @@ if __name__ == "__main__":
 def leer_datos():
     try:
         # Consulta a BigQuery
-        query = "SELECT * FROM `tu_proyecto_id.latam_dataset.datos`"
+        query = "SELECT * FROM `latam-devops-project.latam_dataset.datos`"
         query_job = client.query(query)
         resultado = query_job.result()
 
