@@ -3,29 +3,19 @@ import psycopg2
 from psycopg2 import OperationalError
 from dotenv import load_dotenv
 import os
+from google.cloud import bigquery  # ✅ Corrección: Asegurar esta línea
 
 # Cargar variables de entorno
 load_dotenv()
 
 app = FastAPI()
 
-# Conectar a PostgreSQL
-try:
-    conn = psycopg2.connect(
-        dbname=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        host=os.getenv("DB_HOST"),
-        port="5432"
-    )
-    print("✅ Conectado a la base de datos")
-except OperationalError as e:
-    print(f"❌ Error de conexión a la base de datos: {e}")
-    conn = None
+# Inicializar el cliente de BigQuery
+client = bigquery.Client()
 
 @app.get("/")
 def read_root():
-    return {"mensaje": "¡La API está funcionando correctamente!"}
+    return {"mensaje": "¡La API está funcionando correctamente con BigQuery!"}
 
 if __name__ == "__main__":
     import uvicorn
@@ -34,15 +24,15 @@ if __name__ == "__main__":
 
 @app.get("/datos")
 def leer_datos():
-    if conn is None:
-        raise HTTPException(status_code=500, detail="❌ No hay conexión a la base de datos.")
-    
     try:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM datos;")
-        resultado = cursor.fetchall()
-        cursor.close()
-        return {"datos": resultado}
+        # Consulta a BigQuery
+        query = "SELECT * FROM `tu_proyecto_id.latam_dataset.datos`"
+        query_job = client.query(query)
+        resultado = query_job.result()
+
+        # Convertir resultados a lista de diccionarios
+        datos = [{"id": row.id, "contenido": row.contenido} for row in resultado]
+        return {"datos": datos}
+
     except Exception as e:
-        print(f"❌ Error al consultar la base de datos: {e}")
-        raise HTTPException(status_code=500, detail=f"Error al consultar la base de datos: {e}")
+        raise HTTPException(status_code=500, detail=f"Error al consultar BigQuery: {e}")
