@@ -37,11 +37,19 @@ jobs:
           DOCKER_IMAGE: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api:latest"
         run: |
           cd terraform
+          terraform validate
+          terraform init -reconfigure
+          terraform plan -var="project_id=${{ env.GCP_PROJECT_ID }}" \
+                          -var="region=us-central1" \
+                          -var="docker_image=${{ env.DOCKER_IMAGE }}" \
+                          -var="service_account=${{ env.GCP_SERVICE_ACCOUNT }}" \
+                          -var="bucket_name=${{ env.GCP_BUCKET_NAME }}"
           terraform apply -auto-approve \
-            -var="project_id=${GCP_PROJECT_ID}" \
-            -var="region=us-central1" \
-            -var="docker_image=${DOCKER_IMAGE}" \
-            -var="service_account=${GCP_SERVICE_ACCOUNT}" \
-            -var="bucket_name=${GCP_BUCKET_NAME}"  # ✅ Se agrega el bucket
+                          -var="project_id=${{ env.GCP_PROJECT_ID }}" \
+                          -var="region=us-central1" \
+                          -var="docker_image=${{ env.DOCKER_IMAGE }}" \
+                          -var="service_account=${{ env.GCP_SERVICE_ACCOUNT }}" \
+                          -var="bucket_name=${{ env.GCP_BUCKET_NAME }}"
+
 
 
