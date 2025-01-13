@@ -27,6 +27,11 @@ except OperationalError as e:
 def read_root():
     return {"mensaje": "¡La API está funcionando correctamente!"}
 
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
+
 @app.get("/datos")
 def leer_datos():
     if conn is None:
