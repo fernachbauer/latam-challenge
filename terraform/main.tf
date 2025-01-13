@@ -1,3 +1,33 @@
+# 📂 Crear un Bucket de Cloud Storage con variable
+resource "google_storage_bucket" "latam_bucket" {
+  name          = var.bucket_name  # ✅ Uso de la variable
+  location      = var.region
+  force_destroy = true  # ✅ Permite borrar el bucket aunque tenga archivos
+
+  uniform_bucket_level_access = true  # 🚀 Seguridad recomendada
+  versioning {
+    enabled = true  # 🔄 Control de versiones activado
+  }
+
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      age = 30  # 🕒 Borra objetos después de 30 días
+    }
+  }
+}
+
+
+# 📥 Subir el esquema de BigQuery al Bucket
+resource "google_storage_bucket_object" "schema_datos" {
+  name   = "schemas/schema_datos.json"  # 📂 Ruta dentro del bucket
+  bucket = var.bucket_name              # ✅ Uso de la variable
+  source = "${path.module}/schemas/schema_datos.json"  # 📄 Archivo local
+}
+
+
 # ✅ Creación del Dataset en BigQuery
 resource "google_bigquery_dataset" "latam_dataset" {
   dataset_id  = "latam_dataset"
@@ -6,16 +36,20 @@ resource "google_bigquery_dataset" "latam_dataset" {
   description = "Dataset para almacenar datos de la API LATAM"
 }
 
-# ✅ Creación de la tabla en BigQuery
+# 📊 Crear la tabla BigQuery usando el esquema en el bucket
 resource "google_bigquery_table" "datos" {
   dataset_id = google_bigquery_dataset.latam_dataset.dataset_id
   table_id   = "datos"
   project    = var.project_id
 
+  # ✅ Cargar el esquema directamente desde el bucket
   schema = file("${path.module}/schemas/schema_datos.json")
 
-  deletion_protection = false
+  time_partitioning {
+    type = "DAY"
+  }
 }
+
 
 # 📩 Configuración de Pub/Sub
 resource "google_pubsub_topic" "datos_topic" {

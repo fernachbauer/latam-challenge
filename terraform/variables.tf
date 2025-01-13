@@ -17,3 +17,8 @@ variable "service_account" {
   description = "Cuenta de servicio con permisos necesarios"
   type        = string
 }
+
+variable "bucket_name" {
+  description = "Nombre del bucket de Cloud Storage"
+  type        = string
+}
