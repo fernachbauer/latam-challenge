@@ -19,6 +19,6 @@ variable "service_account" {
 }
 
 variable "bucket_name" {
-  description = "Nombre del bucket de Cloud Storage"
+  description = "Nombre del bucket de Cloud Storage desde secreto de GitHub"
   type        = string
 }
