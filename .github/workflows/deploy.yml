@@ -1,0 +1,36 @@
+name: Deploy API to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main  # Se activa cuando haces push a la rama main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Clonar el repositorio
+        uses: actions/checkout@v2
+
+      - name: 🔑 Autenticarse en Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_KEY }}
+
+      - name: 🔧 Configurar Docker para Google Cloud
+        run: gcloud auth configure-docker
+
+      - name: 🐳 Construir y Publicar imagen Docker
+        run: |
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api .
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api
+
+      - name: 🚀 Desplegar en Cloud Run
+        run: |
+          gcloud run deploy latam-api \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api \
+            --platform managed \
+            --region us-central1 \
+            --allow-unauthenticated
+
