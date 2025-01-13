@@ -1,9 +1,3 @@
-variable "gcp_credentials" {
-  description = "Google Cloud credentials JSON (desde GitHub Secret)"
-  type        = string
-  sensitive   = true
-}
-
 variable "project_id" {
   description = "Google Cloud Project ID"
   type        = string

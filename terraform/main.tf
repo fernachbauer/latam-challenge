@@ -1,14 +1,8 @@
 # ✅ Creación del Dataset en BigQuery
 resource "google_bigquery_dataset" "latam_dataset" {
-  dataset_id                  = "latam_dataset"
-  location                    = var.region
-  description                 = "Dataset para almacenar datos de la API LATAM"
-  default_table_expiration_ms = 2592000000  # 30 días
-
-  labels = {
-    environment = "production"
-    team        = "devops"
-  }
+  dataset_id  = "latam_dataset"
+  location    = var.region
+  description = "Dataset para almacenar datos de la API LATAM"
 }
 
 # 🚀 Despliegue del servicio en Cloud Run
@@ -21,14 +15,20 @@ resource "google_cloud_run_service" "latam_api" {
       containers {
         image = var.docker_image
 
+        # 🔐 Se pasa el secreto directamente como variable de entorno
         env {
           name  = "GOOGLE_APPLICATION_CREDENTIALS"
           value = "/tmp/credentials.json"
         }
 
+        # ✅ Comando para crear el archivo de credenciales dentro del contenedor
         command = ["/bin/sh"]
-        args    = ["-c", "echo '${var.gcp_credentials}' > /tmp/credentials.json && uvicorn app.main:app --host 0.0.0.0 --port 8080"]
+        args    = [
+          "-c",
+          "echo \"$GCP_KEY\" > /tmp/credentials.json && uvicorn app.main:app --host 0.0.0.0 --port 8080"
+        ]
 
+        # 🔍 Proceso de revisión de estado de la API
         liveness_probe {
           http_get {
             path = "/health"
@@ -49,11 +49,10 @@ resource "google_cloud_run_service" "latam_api" {
   autogenerate_revision_name = true
 }
 
-# 🔓 Permiso para invocar el servicio de Cloud Run (solo usuarios autenticados)
+# 🔓 Permiso para invocar el servicio de Cloud Run públicamente
 resource "google_cloud_run_service_iam_member" "invoker" {
   service  = google_cloud_run_service.latam_api.name
   location = var.region
   role     = "roles/run.invoker"
-  member   = "allAuthenticatedUsers"
+  member   = "allUsers"
 }
-
