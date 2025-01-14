@@ -47,13 +47,11 @@ resource "google_bigquery_table" "datos" {
   project    = var.project_id
 
   external_data_configuration {
-    source_uris  = ["gs://${google_storage_bucket.latam_bucket.name}/schemas/schema_datos.json"]
+    source_uris   = ["gs://${google_storage_bucket.latam_bucket.name}/schemas/schema_datos.json"]
     source_format = "NEWLINE_DELIMITED_JSON"
-    
-    schema = file("${path.module}/schemas/schema_datos.json")  # 📂 Leer el esquema desde Cloud Storage
+    autodetect    = true  # ✅ Habilita la detección automática del esquema
   }
 }
-
 
 # 📩 Configuración de Pub/Sub
 resource "google_pubsub_topic" "datos_topic" {
