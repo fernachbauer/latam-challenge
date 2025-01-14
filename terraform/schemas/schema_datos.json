@@ -1,4 +1,21 @@
-{"name": "id","type": "STRING","mode": "REQUIRED","description": "Identificador único del dato"}
-{"name": "contenido","type": "STRING","mode": "NULLABLE","description": "Contenido del dato"}
-{"name": "timestamp","type": "TIMESTAMP","mode": "REQUIRED","description": "Marca de tiempo del registro"}
+[
+    {
+      "name": "id",
+      "type": "STRING",
+      "mode": "REQUIRED",
+      "description": "Identificador único del dato"
+    },
+    {
+      "name": "contenido",
+      "type": "STRING",
+      "mode": "NULLABLE",
+      "description": "Contenido del dato"
+    },
+    {
+      "name": "timestamp",
+      "type": "TIMESTAMP",
+      "mode": "REQUIRED",
+      "description": "Marca de tiempo del registro"
+    }
+  ]
   
