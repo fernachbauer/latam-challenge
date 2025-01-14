@@ -472,18 +472,128 @@ https://github.com/fernachbauer/latam-challenge/actions/runs/12771103343/job/355
 
 **🔄 Cambios en la Visualización:**
 
+Se debe tener una mirada mas general de los sistemas, abordando KPI agrupados y métricas que permitan gestionar mayor volúmen de instancias o aplicaciones con menor esfuerzo. Para ello, hay que alinear las necesidades técnicas de la continuidad operacional con la vista estratégica de la compañia, prioridades de ingesta para procesos críticos, calendario de jobs, se deben clasificar los tipos de procesos operacionales a lo largo de todo el ciclo de vida de los datos.
+
+Dado esto se hace necesario crear un paneles tácticos y estratégicos para poder despejar la información y agruparla en sintonía con las decisiones que se deben tomar a nivel de recursos en la nube y el presupuesto asignado para los distintos recursos cloud.
+
+Entonces, para administrar **50 sistemas similares** que exponen APIs y manejan flujos de datos críticos, es esencial construir **paneles de monitoreo** eficientes que permitan supervisar tanto la **operación técnica** como la **estrategia de negocio**. Esto implica usar visualizaciones e indicadores específicos que faciliten la toma de decisiones. Aquí te propongo una estructura de paneles con métricas e indicadores clave:
+
+Es por ello que se proponen algunas formas de segmentar recursos:
+
 - **Segmentación por Proyecto/Sistema:** Agrupar métricas por cada instancia del sistema.  
 - **Dashboard Global:** Vista consolidada para todas las instancias, destacando los sistemas críticos.  
 - **Métricas Agregadas:**  
-  - Tasa de ingesta global vs. individual.  
+  - Tasa de ingesta global vs. individual. (Fallos, Incidenciasm etc)  
   - Latencia promedio global.  
   - Comparativa de errores entre sistemas.
   - Agrupaciones customizadas que aporten información estratégica para un KPI de la compañia. 
 
-**🔓 Nuevas Métricas Desbloqueadas:**  
-- **Balanceo de carga entre sistemas.**  
-- **Uso de red entre regiones.**  
-- **Distribución geográfica de usuarios y tráfico.**  
+**🔓 Nuevas Métricas Desbloqueadas:**
+
+## 📊 **Panel Estratégico de Alto Nivel (Executive Dashboard)**
+
+**Objetivo:** Proveer una visión global y simplificada del estado de los sistemas, alineada con los objetivos estratégicos de la empresa.
+
+### 🔑 **Indicadores Clave (KPIs):**
+
+- **Disponibilidad General (%):** Uptime consolidado de todos los sistemas.  
+- **Tiempo Promedio de Respuesta (ms):** Latencia media de todas las APIs.  
+- **Errores Críticos (5xx) Globales:** Número de fallas críticas por entorno.  
+- **Uso de Recursos por Sistema:** CPU, memoria y almacenamiento usados.  
+- **Costo de Operación ($):** Gasto mensual por servicio (APIs, Pub/Sub, BigQuery).  
+- **Prioridad de Procesos Críticos:** Estado de los sistemas clasificados por prioridad.
+
+### 📊 **Visualizaciones:**
+
+- **Heatmaps:** Mapas de calor para ver disponibilidad por región o servicio.  
+- **Gráficos de Líneas:** Evolución del uso de recursos (CPU/RAM) en el tiempo.  
+- **Gráficos de Barras:** Comparación de costos operativos por sistema.  
+- **Semáforos de Estado:** Indicadores visuales (verde, amarillo, rojo) para servicios críticos.
+
+---
+
+## ⚙️ **Panel Técnico Operacional (Ops Dashboard)**
+
+**Objetivo:** Supervisar el rendimiento y la salud operativa de cada API y su infraestructura.
+
+### 🔑 **Indicadores Clave (KPIs):**
+
+- **Latencia por API:** Tiempo de respuesta segregado por endpoint.  
+- **Errores 4xx/5xx:** Tasa de errores de cliente y servidor.  
+- **Tasa de Éxito de Ingesta (Pub/Sub):** % de mensajes procesados correctamente.  
+- **Backlogs de Pub/Sub:** Mensajes pendientes de procesar por suscripción.  
+- **Uso de BigQuery:** Consultas por segundo y tiempos de ejecución.
+
+### 📊 **Visualizaciones:**
+
+- **Gráficos de Líneas por Servicio:** Latencia, errores y tráfico por API.  
+- **Histograma de Latencia:** Distribución de tiempos de respuesta.  
+- **Panel de Métricas de Pub/Sub:** Publicación y procesamiento de mensajes.  
+- **Alertas en Tiempo Real:** Panel con logs y alertas activas.
+
+---
+
+## 🚀 **Panel de Escalabilidad y Costos (Scaling & Cost Dashboard)**
+
+**Objetivo:** Optimizar el uso de recursos y controlar costos ante el crecimiento de los sistemas.
+
+### 🔑 **Indicadores Clave (KPIs):**
+
+- **Uso de Autoescalado:** Niveles de escalamiento de Cloud Run.  
+- **Costo por API:** Desglose de costos de operación por servicio.  
+- **Costo por Región/Entorno:** Gastos según ubicación geográfica.  
+- **Capacidad Reservada vs. Uso Real:** Eficiencia de recursos.
+
+### 📊 **Visualizaciones:**
+
+- **Stacked Bar Charts:** Costos por componente (API, almacenamiento, red).  
+- **Heatmap de Uso de Recursos:** Uso de CPU y memoria en Cloud Run.  
+- **Gráficos de Líneas:** Tendencia de costos vs. tráfico de usuarios.
+
+---
+
+## 🛡️ **Panel de Seguridad y Cumplimiento (Security Dashboard)**
+
+**Objetivo:** Garantizar la seguridad de los sistemas y el cumplimiento normativo.
+
+### 🔑 **Indicadores Clave (KPIs):**
+
+- **Intentos de Acceso Fallidos:** Número de intentos de acceso no autorizados.  
+- **Errores de Autenticación:** Fallos de autenticación de usuarios/API Keys.  
+- **Permisos y Roles Inadecuados:** Cambios inusuales en roles de IAM.  
+- **Eventos de Seguridad:** Logs de incidentes de seguridad.
+
+### 📊 **Visualizaciones:**
+
+- **Tablas de Auditoría:** Accesos por usuario/servicio.  
+- **Gráficos de Radar:** Comparativa de riesgos por sistema.  
+- **Timeline de Incidentes:** Cronología de eventos de seguridad.
+
+---
+
+## 🛠️ **Herramientas para Implementar los Dashboards**
+
+- **Google Cloud Monitoring (Stackdriver):** Para monitorear servicios de Google Cloud.  
+- **Grafana:** Visualización avanzada de métricas técnicas.  
+- **BigQuery + Looker Studio:** Análisis de grandes volúmenes de datos.  
+- **Prometheus:** Recolección de métricas a nivel de infraestructura.  
+- **PagerDuty / Opsgenie:** Gestión de alertas y respuesta a incidentes.
+
+---
+
+## 📈 **Métricas Avanzadas para Escalamiento**
+
+- **Tasa de Peticiones Concurrentes:** Relación entre tráfico entrante y capacidad de respuesta.  
+- **Colas de Mensajes (Pub/Sub):** Detección de cuellos de botella en la ingesta.  
+- **Tasa de Fallos Transitorios:** Errores intermitentes que podrían ser mitigados con reintentos.  
+- **Elasticidad de Autoescalado:** Capacidad del sistema de escalar de forma eficiente.  
+- **Costo Eficiencia:** Costo por transacción o por volumen de datos procesado.
+
+---
+
+## 🔑 **Conclusión**
+
+Para escalar a **50 sistemas similares**, es fundamental implementar dashboards claros y jerarquizados, donde se visualicen métricas estratégicas, operacionales, de costos y de seguridad. Estos paneles permitirán tomar decisiones informadas, optimizar recursos y garantizar la **resiliencia** y **escalabilidad** del sistema.
 
 ---
 
