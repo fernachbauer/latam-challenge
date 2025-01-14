@@ -618,50 +618,69 @@ Para escalar a **50 sistemas similares**, es fundamental implementar dashboards 
 
 ---
 
-# ⚠️ **Parte 5: Alertas y SRE (Site Reliability Engineering)**
+# ⚠️ Parte 5: Alertas y SRE (Opcional)
 
-## 5.1 🔔 **Definición de Alertas**
+## 5.1 🔔 **Definición de Reglas y Umbrales de Alerta**
 
-Para garantizar la alta disponibilidad y rendimiento del sistema, se definieron alertas proactivas que permiten anticiparse a posibles fallos o degradaciones del servicio.
+Las siguientes reglas de alerta están diseñadas para anticipar problemas críticos en el sistema y mantener su rendimiento óptimo.
 
 ### 🚨 **Alertas Críticas**
 
-| **Condición**                        | **Descripción**                                                   | **Prioridad** |
-|-------------------------------------|-------------------------------------------------------------------|---------------|
-| **Latencia de la API > 1s**         | La API HTTP responde con tiempos superiores a 1 segundo.          | ⚠️ Crítica    |
-| **Errores de ingesta > 5%**         | Incremento en el porcentaje de mensajes fallidos en Pub/Sub.      | ⚠️ Media      |
-| **Uso de CPU > 80% por 5 min**      | Sobrecarga sostenida de recursos en Cloud Run o BigQuery.         | ⚠️ Crítica    |
-| **Errores 5xx en la API**           | Aumento de errores internos en la API (500, 502, 503).           | ⚠️ Alta       |
-| **Caída del servicio de Pub/Sub**   | No llegan nuevos mensajes al tópico `datos-topic`.                | ⚠️ Crítica    |
+| **Métrica**                                  | **Umbral Crítico**                             | **Impacto**                                            | **Acción Correctiva**                                   |
+|----------------------------------------------|------------------------------------------------|-------------------------------------------------------|--------------------------------------------------------|
+| **Disponibilidad de la API HTTP**            | < 99.9% de uptime mensual                      | Pérdida de disponibilidad del servicio.                | Escalar al equipo de infraestructura.                   |
+| **Latencia de Respuesta de la API**          | > 500ms sostenido por más de 5 minutos         | Degradación de la experiencia del usuario.             | Activar autoescalado en Cloud Run.                     |
+| **Errores 5xx en la API HTTP**              | > 2% del total de peticiones en 10 minutos     | Fallos en la infraestructura o backend.               | Inspeccionar logs y aplicar rollback si es necesario.  |
+| **Tasa de Mensajes No Procesados (Pub/Sub)** | > 5% durante 15 minutos                        | Riesgo de pérdida o retraso de datos.                 | Incrementar capacidad de procesamiento.                |
+| **Uso de CPU/Memoria**                      | CPU > 85% o RAM > 80% por más de 10 minutos    | Saturación de instancias y posible caída del servicio.| Revisar autoescalado y optimizar recursos.             |
+
+### ⚠️ **Alertas Moderadas**
+
+| **Métrica**                                | **Umbral**                              | **Impacto**                                 | **Acción Correctiva**                           |
+|--------------------------------------------|----------------------------------------|--------------------------------------------|------------------------------------------------|
+| **Errores 4xx en API HTTP**                | > 10% del total de peticiones           | Problemas con solicitudes incorrectas.     | Revisar uso de la API y mejorar documentación. |
+| **Costos de Operación**                    | > 20% del presupuesto mensual proyectado | Riesgo financiero por sobrecostos.         | Revisar configuraciones y recursos asignados.  |
+| **Backlog en Pub/Sub**                     | Crecimiento constante sin estabilizarse | Cuello de botella en la ingesta de datos.  | Aumentar paralelismo en la suscripción.        |
 
 ---
 
-## 5.2 🛠️ **Implementación de las Alertas**
+## 5.2 📏 **Definición de SLIs/SLOs**
 
-### 🏗️ **Herramienta Utilizada:**  
-**Google Cloud Monitoring (Stackdriver)** fue seleccionada para configurar y gestionar las alertas, ya que se integra de forma nativa con los servicios desplegados en Google Cloud.
+### 🔍 **SLIs (Service Level Indicators)**
 
-### ⚙️ **Configuración de Alertas:**
+| **SLI**                                     | **Descripción**                                          | **Umbral Crítico**                       | **Herramienta de Monitoreo**                  |
+|---------------------------------------------|----------------------------------------------------------|-----------------------------------------|----------------------------------------------|
+| **Disponibilidad de la API HTTP**           | % de tiempo que la API responde correctamente (2xx).     | < 99.9% mensual                         | Google Cloud Monitoring (Stackdriver).       |
+| **Latencia de Respuesta de la API HTTP**    | Tiempo promedio de respuesta.                            | > 500ms sostenido por 5 minutos.        | Stackdriver, métricas de Cloud Run.         |
+| **Tasa de Error (Error Rate)**              | % de respuestas 5xx sobre el total de peticiones.        | > 2% sostenido en 10 minutos.          | Logs y métricas de Cloud Run.              |
+| **Procesamiento en Pub/Sub**                | % de mensajes procesados exitosamente.                   | < 95% de procesamiento en 15 minutos.  | Métricas de Pub/Sub.                      |
 
-- **Monitoreo de Latencia:**  
-  Se crea un _alerting policy_ que supervise la métrica de latencia de la API.  
-  🔎 **Condición:** Latencia > 1s en el 95% de las solicitudes.
+### 🎯 **SLOs (Service Level Objectives)**
 
-- **Monitoreo de Errores de Ingesta:**  
-  Se configura la supervisión de errores en la suscripción de Pub/Sub.  
-  🔎 **Condición:** Tasa de errores > 5%.
+| **SLO**                                     | **Objetivo**                                   | **Justificación**                                  |
+|---------------------------------------------|------------------------------------------------|----------------------------------------------------|
+| **Disponibilidad de la API HTTP**           | ≥ 99.9% mensual                                | Minimizar interrupciones y asegurar continuidad.   |
+| **Latencia de Respuesta**                   | ≤ 500ms en el 95% de las peticiones.           | Garantizar experiencia de usuario fluida.          |
+| **Tasa de Error**                           | ≤ 1% de errores 5xx por semana.               | Mantener confiabilidad y disponibilidad.           |
+| **Procesamiento en Pub/Sub**                | ≥ 98% de mensajes procesados sin error.        | Asegurar flujo continuo de ingesta de datos.       |
 
-- **Uso de CPU:**  
-  Se activa el monitoreo de recursos en Cloud Run.  
-  🔎 **Condición:** CPU > 80% sostenido durante 5 minutos.
+---
 
-- **Errores de la API:**  
-  Supervisión de respuestas HTTP 5xx.  
-  🔎 **Condición:** Más de 10 errores 5xx en 1 minuto.
+## 💡 **Razonamiento de Selección de SLIs/SLOs**
 
-- **Notificación:**  
-  Las alertas se enviarán a través de **Slack**, **Email** y **SMS** para una respuesta rápida.  
-  📬 **Canales de Alerta:** Google Chat, Email de soporte, Slack (canal #devops-alerts).
+| **Razón de Selección**                   | **Métricas Incluidas**                                  | **Métricas Excluidas**                             |
+|-----------------------------------------|--------------------------------------------------------|---------------------------------------------------|
+| **Impacto directo en el usuario**       | Disponibilidad, Latencia, Errores 5xx.                 | Uso de disco y métricas internas no visibles.     |
+| **Continuidad del negocio**             | Tasa de procesamiento en Pub/Sub.                      | Métricas de tráfico interno.                      |
+| **Balance entre rigor y flexibilidad**  | Umbrales adaptados al impacto crítico.                 | Métricas que no afectan al usuario final.         |
+
+---
+
+## 📊 **Resumen de la Estrategia de Alertas y SRE**
+
+- **🚨 Detección proactiva:** Las alertas y umbrales están diseñados para actuar antes de que los problemas impacten a los usuarios.  
+- **📈 Métricas alineadas al negocio:** Los SLIs/SLOs garantizan el cumplimiento de objetivos estratégicos.  
+- **⚙️ Resiliencia operativa:** La configuración de alertas y escalado automático permite mantener un servicio confiable y de alto rendimiento.  
 
 ---
 
