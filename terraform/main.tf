@@ -49,7 +49,11 @@ resource "google_bigquery_table" "datos" {
   external_data_configuration {
     source_uris   = ["gs://${google_storage_bucket.latam_bucket.name}/schemas/schema_datos.json"]
     source_format = "NEWLINE_DELIMITED_JSON"
-    autodetect    = true  # ✅ Habilita la detección automática del esquema
+    autodetect    = true  # ✅ Detección automática del esquema
+  }
+
+  time_partitioning {
+    type = "DAY"
   }
 }
 
