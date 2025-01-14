@@ -46,11 +46,8 @@ resource "google_bigquery_table" "datos" {
   table_id   = "datos"
   project    = var.project_id
 
-  external_data_configuration {
-    source_uris   = ["gs://${google_storage_bucket.latam_bucket.name}/schemas/schema_datos.json"]
-    source_format = "NEWLINE_DELIMITED_JSON"
-    autodetect    = false
-  }
+  # 📥 Cargar el esquema directamente desde el archivo JSON
+  schema = file("${path.module}/schemas/schema_datos.json")
 }
 
 # 📩 Configuración de Pub/Sub
