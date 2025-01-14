@@ -7,3 +7,4 @@ google-cloud-pubsub
 google-cloud-storage
 pytest
 requests
+locust

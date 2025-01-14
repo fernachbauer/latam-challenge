@@ -80,3 +80,14 @@ jobs:
 
       - name: 🧪 Ejecutar Pruebas de Integración
         run: pytest tests/
+
+      # 🏋️ Pruebas de carga con Locust
+      - name: 🏋️ Pruebas de carga con Locust
+        run: |
+          pip install locust
+          locust -f tests/load/locustfile.py \
+                 --host=https://latam-api-317569714660.us-central1.run.app \
+                 --headless \
+                 -u 50 \
+                 -r 10 \
+                 --run-time 2m
