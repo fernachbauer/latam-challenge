@@ -23,21 +23,23 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_KEY }}
 
-      # ✅ Nuevo Paso: Crear archivo de credenciales
+      # ✅ Crear el archivo de credenciales en la ruta correcta
       - name: 📂 Escribir credencial en archivo
-        run: echo '${{ secrets.GCP_KEY }}' > $HOME/gcp-key.json
+        run: |
+          echo '${{ secrets.GCP_KEY }}' > gcp-key.json
+          ls -l gcp-key.json  # ✅ Verificación del archivo
 
-      # ✅ Nuevo Paso: Autenticar Docker con Google Cloud
+      # ✅ Autenticar Docker con GCP
       - name: 🔑 Autenticar Docker con GCP
         run: gcloud auth configure-docker
 
-      # ✅ Nuevo Paso: Construir y desplegar imagen Docker
+      # ✅ Construir y desplegar imagen Docker
       - name: 🐳 Construir y desplegar Docker
         run: |
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api:latest .
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api:latest
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: $HOME/gcp-key.json  # ✅ Se pasa a Docker
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json  # ✅ Ruta correcta
 
       - name: 🌎 Inicializar Terraform
         run: |
@@ -51,7 +53,7 @@ jobs:
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
           DOCKER_IMAGE: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api:latest"
-          GOOGLE_APPLICATION_CREDENTIALS: $HOME/gcp-key.json  # ✅ Se asegura que Terraform también lo use
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json  # ✅ Asegura que Terraform lo use
         run: |
           cd terraform
           terraform validate
@@ -67,7 +69,3 @@ jobs:
                           -var="docker_image=${{ env.DOCKER_IMAGE }}" \
                           -var="service_account=${{ env.GCP_SERVICE_ACCOUNT }}" \
                           -var="bucket_name=${{ env.GCP_BUCKET_NAME }}"
-
-
-
-
