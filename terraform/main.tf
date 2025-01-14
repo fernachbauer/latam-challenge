@@ -46,15 +46,13 @@ resource "google_bigquery_table" "datos" {
   table_id   = "datos"
   project    = var.project_id
 
-  # ✅ Configuración de datos externos desde Cloud Storage
   external_data_configuration {
     source_uris  = ["gs://${google_storage_bucket.latam_bucket.name}/schemas/schema_datos.json"]
     source_format = "NEWLINE_DELIMITED_JSON"
-    autodetect    = true
+    
+    schema = file("${path.module}/schemas/schema_datos.json")  # 📂 Leer el esquema desde Cloud Storage
   }
 }
-
-
 
 
 # 📩 Configuración de Pub/Sub
