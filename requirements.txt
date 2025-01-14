@@ -3,3 +3,5 @@ uvicorn
 psycopg2-binary
 python-dotenv
 google-cloud-bigquery
+google-cloud-pubsub
+google-cloud-storage
