@@ -216,6 +216,11 @@ messageIds:
 ### **2.4 Diagrama de Arquitectura:**
 - https://drive.google.com/file/d/1XTSk-mBAVAPTKsSG6DKX_VgDACknp_h8/view?usp=sharing
 
+<div align="center">
+    <img src="./arquitectura-api-latam.png" alt="Arquitectura de la Solución" width="800"/>
+</div>
+
+
 #### Infraestructura Propuesta
 
 1. **Ingesta de Datos (Google Cloud Pub/Sub)**
