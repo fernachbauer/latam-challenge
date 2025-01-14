@@ -13,6 +13,11 @@ app = FastAPI()
 # Inicializar el cliente de BigQuery
 client = bigquery.Client()
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+
 @app.get("/")
 def read_root():
     return {"mensaje": "¡La API está funcionando correctamente con BigQuery!"}
