@@ -23,23 +23,15 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_KEY }}
 
-      # ✅ Crear el archivo de credenciales en la ruta correcta
-      - name: 📂 Escribir credencial en archivo
-        run: |
-          echo '${{ secrets.GCP_KEY }}' > gcp-key.json
-          ls -l gcp-key.json  # ✅ Verificación del archivo
-
-      # ✅ Autenticar Docker con GCP
       - name: 🔑 Autenticar Docker con GCP
         run: gcloud auth configure-docker
 
-      # ✅ Construir y desplegar imagen Docker
       - name: 🐳 Construir y desplegar Docker
         run: |
           docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api:latest .
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api:latest
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json  # ✅ Ruta correcta
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
 
       - name: 🌎 Inicializar Terraform
         run: |
@@ -48,24 +40,43 @@ jobs:
 
       - name: 🚀 Aplicar Terraform
         env:
-          GCP_KEY: ${{ secrets.GCP_KEY }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
           DOCKER_IMAGE: "gcr.io/${{ secrets.GCP_PROJECT_ID }}/latam-api:latest"
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json  # ✅ Asegura que Terraform lo use
         run: |
           cd terraform
           terraform validate
-          terraform init -reconfigure
           terraform plan -var="project_id=${{ env.GCP_PROJECT_ID }}" \
-                          -var="region=us-central1" \
-                          -var="docker_image=${{ env.DOCKER_IMAGE }}" \
-                          -var="service_account=${{ env.GCP_SERVICE_ACCOUNT }}" \
-                          -var="bucket_name=${{ env.GCP_BUCKET_NAME }}"
+                         -var="region=us-central1" \
+                         -var="docker_image=${{ env.DOCKER_IMAGE }}" \
+                         -var="service_account=${{ env.GCP_SERVICE_ACCOUNT }}" \
+                         -var="bucket_name=${{ env.GCP_BUCKET_NAME }}"
           terraform apply -auto-approve \
-                          -var="project_id=${{ env.GCP_PROJECT_ID }}" \
-                          -var="region=us-central1" \
-                          -var="docker_image=${{ env.DOCKER_IMAGE }}" \
-                          -var="service_account=${{ env.GCP_SERVICE_ACCOUNT }}" \
-                          -var="bucket_name=${{ env.GCP_BUCKET_NAME }}"
+                         -var="project_id=${{ env.GCP_PROJECT_ID }}" \
+                         -var="region=us-central1" \
+                         -var="docker_image=${{ env.DOCKER_IMAGE }}" \
+                         -var="service_account=${{ env.GCP_SERVICE_ACCOUNT }}" \
+                         -var="bucket_name=${{ env.GCP_BUCKET_NAME }}"
+
+  # ✅ Pruebas de Integración
+  integration-test:
+    needs: deploy  # ⬅️ Asegura que las pruebas se ejecuten después del despliegue
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ Checkout del repositorio
+        uses: actions/checkout@v3
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: 📦 Instalar dependencias
+        run: |
+          pip install -r requirements.txt
+          pip install pytest requests
+
+      - name: 🧪 Ejecutar Pruebas de Integración
+        run: pytest tests/
