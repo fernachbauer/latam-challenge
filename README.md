@@ -477,7 +477,8 @@ https://github.com/fernachbauer/latam-challenge/actions/runs/12771103343/job/355
 - **Métricas Agregadas:**  
   - Tasa de ingesta global vs. individual.  
   - Latencia promedio global.  
-  - Comparativa de errores entre sistemas.  
+  - Comparativa de errores entre sistemas.
+  - Agrupaciones customizadas que aporten información estratégica para un KPI de la compañia. 
 
 **🔓 Nuevas Métricas Desbloqueadas:**  
 - **Balanceo de carga entre sistemas.**  
@@ -505,9 +506,124 @@ https://github.com/fernachbauer/latam-challenge/actions/runs/12771103343/job/355
 - **Optimizar reglas de alertas:** Definir umbrales dinámicos ajustados al contexto.  
 - **Automatizar escalamiento:** Implementar autoescalado basado en métricas críticas.
 
+---
 
+# ⚠️ **Parte 5: Alertas y SRE (Site Reliability Engineering)**
+
+## 5.1 🔔 **Definición de Alertas**
+
+Para garantizar la alta disponibilidad y rendimiento del sistema, se definieron alertas proactivas que permiten anticiparse a posibles fallos o degradaciones del servicio.
+
+### 🚨 **Alertas Críticas**
+
+| **Condición**                        | **Descripción**                                                   | **Prioridad** |
+|-------------------------------------|-------------------------------------------------------------------|---------------|
+| **Latencia de la API > 1s**         | La API HTTP responde con tiempos superiores a 1 segundo.          | ⚠️ Crítica    |
+| **Errores de ingesta > 5%**         | Incremento en el porcentaje de mensajes fallidos en Pub/Sub.      | ⚠️ Media      |
+| **Uso de CPU > 80% por 5 min**      | Sobrecarga sostenida de recursos en Cloud Run o BigQuery.         | ⚠️ Crítica    |
+| **Errores 5xx en la API**           | Aumento de errores internos en la API (500, 502, 503).           | ⚠️ Alta       |
+| **Caída del servicio de Pub/Sub**   | No llegan nuevos mensajes al tópico `datos-topic`.                | ⚠️ Crítica    |
 
 ---
+
+## 5.2 🛠️ **Implementación de las Alertas**
+
+### 🏗️ **Herramienta Utilizada:**  
+**Google Cloud Monitoring (Stackdriver)** fue seleccionada para configurar y gestionar las alertas, ya que se integra de forma nativa con los servicios desplegados en Google Cloud.
+
+### ⚙️ **Configuración de Alertas:**
+
+- **Monitoreo de Latencia:**  
+  Se crea un _alerting policy_ que supervise la métrica de latencia de la API.  
+  🔎 **Condición:** Latencia > 1s en el 95% de las solicitudes.
+
+- **Monitoreo de Errores de Ingesta:**  
+  Se configura la supervisión de errores en la suscripción de Pub/Sub.  
+  🔎 **Condición:** Tasa de errores > 5%.
+
+- **Uso de CPU:**  
+  Se activa el monitoreo de recursos en Cloud Run.  
+  🔎 **Condición:** CPU > 80% sostenido durante 5 minutos.
+
+- **Errores de la API:**  
+  Supervisión de respuestas HTTP 5xx.  
+  🔎 **Condición:** Más de 10 errores 5xx en 1 minuto.
+
+- **Notificación:**  
+  Las alertas se enviarán a través de **Slack**, **Email** y **SMS** para una respuesta rápida.  
+  📬 **Canales de Alerta:** Google Chat, Email de soporte, Slack (canal #devops-alerts).
+
+---
+
+## 5.3 🎯 **SLIs y SLOs Propuestos**
+
+Los **SLIs (Service Level Indicators)** y **SLOs (Service Level Objectives)** definen los compromisos de rendimiento y disponibilidad del sistema.
+
+### 📏 **Service Level Indicators (SLIs)**
+
+- **Latencia de la API:** Tiempo de respuesta promedio de la API.  
+- **Tasa de errores:** Porcentaje de solicitudes fallidas (errores 5xx).  
+- **Disponibilidad del sistema:** Porcentaje de tiempo que la API está disponible.
+
+### ✅ **Service Level Objectives (SLOs)**
+
+| **Indicador**           | **Objetivo (SLO)**                      |
+|------------------------|----------------------------------------|
+| **Disponibilidad**      | ≥ **99.9%** de tiempo activo mensual.  |
+| **Latencia de la API**  | ≤ **500 ms** en el 95% de las peticiones. |
+| **Tasa de errores**     | ≤ **1%** de respuestas con error.      |
+
+---
+
+## 5.4 🛡️ **Propuestas para Mejorar la Resiliencia del Sistema**
+
+Para mitigar posibles riesgos y mejorar la disponibilidad, se proponen las siguientes medidas:
+
+### 📈 **Escalabilidad Automática (Auto Scaling):**  
+- Configurar **Cloud Run** para autoescalar en función de la demanda.  
+- Ajustar particionamiento y clustering en **BigQuery** para optimizar las consultas.
+
+### 🔄 **Implementar Retrys Exponenciales:**  
+- Configurar reintentos automáticos en **Pub/Sub** para manejar fallos transitorios.  
+- Incorporar circuit breakers en la API.
+
+### 🛠️ **Validación de Datos:**  
+- Validar la estructura de los mensajes antes de insertarlos en **BigQuery**.
+
+### 🏷️ **Etiquetado de Recursos:**  
+- Uso de etiquetas para segmentar recursos críticos y aplicar reglas específicas de monitoreo.
+
+---
+
+## 5.5 🚧 **Dificultades y Limitaciones de Observabilidad**
+
+Si no se abordan adecuadamente los desafíos de escalabilidad y monitoreo, podrían surgir los siguientes problemas:
+
+- **Alertas Falsas Positivas:** Alertas mal configuradas que saturan los canales de notificación.  
+- **Falta de Visibilidad:** Métricas incompletas o dispersas dificultan la identificación de cuellos de botella.  
+- **Escalabilidad del Monitoreo:** Al escalar a múltiples instancias, puede volverse complejo gestionar las métricas y alertas.  
+- **Costos Elevados:** Exceso de monitoreo puede generar costos innecesarios si no se optimizan los recursos.
+
+**🔑 Solución:**  
+- Configurar correctamente los umbrales de alertas.  
+- Implementar dashboards agregados por ambiente.  
+- Uso eficiente de los recursos para balancear costos y rendimiento.
+
+---
+
+## ✈️ **Conclusión**
+
+La implementación de alertas proactivas, junto con métricas clave y objetivos claros de disponibilidad y rendimiento, garantizan la **resiliencia**, **escalabilidad** y **fiabilidad** del sistema. Las acciones correctivas y preventivas propuestas mitigan los posibles riesgos, asegurando la continuidad operativa.
+
+---
+
+```
+        __|__
+--@--@--(_)--@--@--
+```
+
+---
+
 
 # 🎉 **¡Gracias por la Oportunidad!** 🙌
 
@@ -522,23 +638,11 @@ Este proyecto ha sido una experiencia increíble, en la que he invertido muchas 
 ---
 
 ## 🔧✨✈️ **¡Nos vemos en las nubes!** ☁️
-           |
-                       --====|====--
-                             |  
-
-                         .-"""""-. 
-                       .'_________'. 
-                      /_/_|__|__|_\_\
-                     ;'-._       _.-';
-,--------------------|    `-. .-'    |--------------------,
- ``""--..__    ___   ;       '       ;   ___    __..--""``
-  jgs      `"-// \\.._\             /_..// \\-"`
-              \\_//    '._       _.'    \\_//
-               `"`        ``---``        `"`
-
+--- 
 📂 Repositorio
 🔗 https://github.com/fernachbauer/latam-challenge
 
 📧 Contacto
 Nombre: Fernando Nachbauer R
 Correo: fernachbauer@gmail.com
+---
