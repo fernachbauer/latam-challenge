@@ -8,10 +8,6 @@ load_dotenv()
 
 app = FastAPI()
 
-# Verificar que GOOGLE_APPLICATION_CREDENTIALS está configurado
-if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
-    raise RuntimeError("La variable de entorno GOOGLE_APPLICATION_CREDENTIALS no está configurada.")
-
 # Inicializar cliente de BigQuery
 client = bigquery.Client()
 
