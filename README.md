@@ -6,6 +6,7 @@
 Este proyecto implementa un sistema en la nube para ingestar, almacenar y exponer datos a través de una API HTTP para que puedan ser consumidos por terceros, utilizando infraestructura como código (IaC) con Terraform y flujos de CI/CD con GitHub Actions. Además, se incorporaron pruebas de integración, carga, monitoreo y propuestas de alertas para garantizar la resiliencia y escalabilidad del sistema.
 
 ---
+
 ## 📂 Parte 0: Estructura del Proyecto
 
 ```plaintext
@@ -33,6 +34,7 @@ Este proyecto implementa un sistema en la nube para ingestar, almacenar y expone
 ├── 📄 README.md
 └── 📄 load-challenge.py
 
+```
 
 ## 🏗️ Parte 1: Infraestructura e IaC
 
