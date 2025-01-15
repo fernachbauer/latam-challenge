@@ -6,6 +6,33 @@
 Este proyecto implementa un sistema en la nube para ingestar, almacenar y exponer datos a través de una API HTTP para que puedan ser consumidos por terceros, utilizando infraestructura como código (IaC) con Terraform y flujos de CI/CD con GitHub Actions. Además, se incorporaron pruebas de integración, carga, monitoreo y propuestas de alertas para garantizar la resiliencia y escalabilidad del sistema.
 
 ---
+## 📂 Parte 0: Estructura del Proyecto
+
+```plaintext
+📦 latam-challenge/
+├── 📂 .github/
+│   └── 📄 workflows/
+│       └── 📄 ci-cd-pipeline.yml
+├── 📂 terraform/
+│   ├── 📄 main.tf
+│   ├── 📄 variables.tf
+│   ├── 📄 outputs.tf
+│   └── 📄 provider.tf
+├── 📂 app/
+│   ├── 📄 main.py
+│   ├── 📄 requirements.txt
+│   └── 📂 tests/
+│       ├── 📄 test_api.py
+│       └── 📄 test_integration.py
+├── 📂 load_tests/
+│   └── 📄 locustfile.py
+├── 📂 docs/
+│   └── 📄 Arquitectura-API-Latam.png
+├── 📄 Dockerfile
+├── 📄 .gitignore
+├── 📄 README.md
+└── 📄 load-challenge.py
+
 
 ## 🏗️ Parte 1: Infraestructura e IaC
 
